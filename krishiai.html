@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KrishiAI — Smart Crop Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #15803d;
+  --green-light: #22c55e;
+  --green-dim: #166534;
+  --green-bg: #f0fdf4;
+  --green-border: #bbf7d0;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --bg: #0a0f0a;
+  --bg2: #111811;
+  --bg3: #181f18;
+  --card: #1a231a;
+  --card2: #1e2a1e;
+  --border: rgba(34,197,94,0.12);
+  --border2: rgba(34,197,94,0.22);
+  --text: #f0fdf4;
+  --text2: #86efac;
+  --text3: #4ade80;
+  --muted: rgba(240,253,244,0.45);
+  --muted2: rgba(240,253,244,0.25);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --r: 14px;
+  --r-sm: 8px;
+  --r-lg: 20px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--green);border-radius:2px}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideLeft{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes scanLine{0%{top:0%}100%{top:calc(100% - 3px)}}
+@keyframes ping{0%{transform:scale(1);opacity:.7}80%,100%{transform:scale(2.2);opacity:0}}
+@keyframes ripple{0%{transform:scale(0);opacity:.5}100%{transform:scale(3);opacity:0}}
+@keyframes barFill{from{width:0}to{width:var(--w)}}
+@keyframes float{0%,100%{transform:translateY(0px)}50%{transform:translateY(-8px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(21,128,61,.15)}50%{box-shadow:0 0 40px rgba(21,128,61,.35)}}
+@keyframes particleFloat{0%{transform:translateY(0) translateX(0);opacity:0}10%{opacity:.6}90%{opacity:.3}100%{transform:translateY(-120px) translateX(20px);opacity:0}}
+@keyframes borderGlow{0%,100%{border-color:rgba(34,197,94,.12)}50%{border-color:rgba(34,197,94,.4)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes countAnim{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastSlide{from{transform:translateY(80px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes toastHide{from{transform:translateY(0);opacity:1}to{transform:translateY(80px);opacity:0}}
+@keyframes confRing{from{stroke-dashoffset:var(--full)}to{stroke-dashoffset:var(--offset)}}
+@keyframes logoSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@keyframes typewriter{from{width:0}to{width:100%}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ─── NAV ─── */
+.nav{position:sticky;top:0;z-index:100;background:rgba(10,15,10,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;animation:fadeIn .5s ease}
+.nav-logo{display:flex;align-items:center;gap:10px;cursor:pointer}
+.nav-logo-box{width:36px;height:36px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;animation:float 3s ease-in-out infinite}
+.nav-logo-box svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
+.nav-logo-text{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--text)}
+.nav-links{display:flex;gap:4px}
+.nav-link{padding:6px 14px;border-radius:var(--r-sm);font-size:13px;color:var(--muted);cursor:pointer;transition:all .2s;background:none;border:none;font-family:var(--font-body)}
+.nav-link:hover,.nav-link.active{background:rgba(21,128,61,.15);color:var(--text3)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-notif{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all .2s}
+.nav-notif:hover{border-color:var(--border2);background:var(--card2)}
+.nav-notif-dot{position:absolute;top:7px;right:7px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid var(--bg)}
+.nav-avatar{width:36px;height:36px;border-radius:50%;background:rgba(21,128,61,.2);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer}
+
+/* ─── PAGES ─── */
+.page{display:none;animation:fadeIn .35s ease}
+.page.active{display:block}
+
+/* ─── HERO ─── */
+.hero{min-height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;position:relative;overflow:hidden;text-align:center}
+.hero-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.12}
+.hero-orb-1{width:500px;height:500px;background:var(--green);top:-100px;left:-100px}
+.hero-orb-2{width:400px;height:400px;background:#14532d;bottom:-80px;right:-80px}
+.hero-orb-3{width:300px;height:300px;background:var(--amber);top:40%;left:60%;opacity:.06}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(34,197,94,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(34,197,94,.04) 1px,transparent 1px);background-size:40px 40px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:rgba(21,128,61,.1);font-size:12px;color:var(--text3);margin-bottom:24px;animation:fadeUp .5s ease}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green-light);animation:pulse 2s infinite}
+.hero-h1{font-family:var(--font-display);font-size:clamp(38px,6vw,72px);font-weight:800;line-height:1.08;letter-spacing:-.02em;margin-bottom:20px;animation:fadeUp .5s .1s ease both}
+.hero-h1 span{color:var(--green-light);display:inline-block}
+.hero-sub{font-size:clamp(15px,2vw,18px);color:var(--muted);max-width:560px;line-height:1.65;margin-bottom:36px;animation:fadeUp .5s .2s ease both}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:fadeUp .5s .3s ease both}
+.btn-primary{padding:13px 28px;border-radius:var(--r);background:var(--green);color:#fff;font-size:14px;font-weight:500;border:none;cursor:pointer;transition:all .2s;font-family:var(--font-body);display:flex;align-items:center;gap:8px;animation:glow 3s ease-in-out infinite}
+.btn-primary:hover{background:#16a34a;transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0) scale(.98)}
+.btn-outline{padding:13px 28px;border-radius:var(--r);background:transparent;color:var(--text);font-size:14px;font-weight:500;border:1px solid var(--border2);cursor:pointer;transition:all .2s;font-family:var(--font-body);display:flex;align-items:center;gap:8px}
+.btn-outline:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.3)}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:500px;margin:48px auto 0;animation:fadeUp .5s .4s ease both}
+.hero-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center;animation:borderGlow 4s ease-in-out infinite}
+.hero-stat-num{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--green-light)}
+.hero-stat-label{font-size:11px;color:var(--muted);margin-top:3px}
+.particles{position:absolute;inset:0;pointer-events:none}
+.particle{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--green-light);animation:particleFloat linear infinite}
+
+/* ─── FEATURES STRIP ─── */
+.features-strip{padding:24px;display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border)}
+.features-strip::-webkit-scrollbar{display:none}
+.feat-chip{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);font-size:12px;color:var(--muted);transition:all .2s;cursor:pointer}
+.feat-chip:hover{border-color:var(--border2);color:var(--text);background:var(--card2)}
+.feat-chip-icon{width:28px;height:28px;border-radius:var(--r-sm);background:rgba(21,128,61,.15);display:flex;align-items:center;justify-content:center;font-size:14px}
+
+/* ─── SCAN PAGE ─── */
+.scan-wrap{max-width:640px;margin:0 auto;padding:24px}
+.section-title{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6}
+.lang-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.lang-btn{padding:6px 13px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(--font-body)}
+.lang-btn:hover{border-color:var(--border2);color:var(--text2)}
+.lang-btn.active{background:var(--green);border-color:var(--green);color:#fff}
+.scan-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;animation:borderGlow 4s ease-in-out infinite}
+.scan-area{padding:20px;cursor:pointer}
+.scan-frame{border:1.5px dashed rgba(34,197,94,.3);border-radius:var(--r);height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden;transition:all .3s}
+.scan-frame:hover{border-color:rgba(34,197,94,.6);background:rgba(21,128,61,.05)}
+.scan-frame.scanning{border-color:var(--green);background:rgba(21,128,61,.08);animation:borderGlow 1.2s ease-in-out infinite}
+.scan-frame.done{border-color:var(--green-light);background:rgba(21,128,61,.1);border-style:solid}
+.scan-line-anim{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);top:0;display:none}
+.scan-frame.scanning .scan-line-anim{display:block;animation:scanLine 1.2s ease-in-out infinite alternate}
+.scan-ring-wrap{position:relative;width:60px;height:60px;display:flex;align-items:center;justify-content:center}
+.scan-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--green);opacity:0}
+.scan-frame.scanning .scan-ring{animation:ping 1.2s ease-out infinite}
+.scan-icon-bg{width:52px;height:52px;border-radius:50%;background:rgba(21,128,61,.15);display:flex;align-items:center;justify-content:center;transition:transform .3s}
+.scan-frame.scanning .scan-icon-bg{animation:pulse 1.2s ease-in-out infinite}
+.scan-icon-bg svg{width:26px;height:26px;stroke:var(--green-light);fill:none;stroke-width:1.8;stroke-linecap:round}
+.scan-hint{font-size:12px;color:var(--muted);text-align:center;transition:all .3s}
+.scan-spinner-wrap{display:none;flex-direction:column;align-items:center;gap:8px}
+.spinner{width:22px;height:22px;border:2px solid rgba(34,197,94,.2);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
+.scan-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 20px}
+.scan-btn{padding:12px;border-radius:var(--r);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;font-weight:500;transition:all .2s;font-family:var(--font-body);position:relative;overflow:hidden}
+.scan-btn:active{transform:scale(.97)}
+.scan-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.scan-btn-green{background:var(--green);color:#fff}
+.scan-btn-green:hover{background:#16a34a}
+.scan-btn-blue{background:#1d4ed8;color:#fff}
+.scan-btn-blue:hover{background:#1e40af}
+.scan-btn-purple{grid-column:1/-1;background:#6d28d9;color:#fff}
+.scan-btn-purple:hover{background:#7c3aed}
+.scan-btn-ripple{position:absolute;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.18);transform:scale(0);pointer-events:none;transition:none}
+.scan-btn-ripple.active{animation:ripple .6s ease-out forwards}
+.diag-result{animation:scaleIn .4s ease;margin-bottom:16px}
+.diag-card{background:var(--card);border:1px solid rgba(34,197,94,.3);border-radius:var(--r-lg);padding:20px}
+.diag-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.diag-icon-box{width:44px;height:44px;border-radius:12px;background:rgba(21,128,61,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.diag-icon-box svg{width:22px;height:22px;stroke:var(--green-light);fill:none;stroke-width:1.8;stroke-linecap:round}
+.diag-disease{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text)}
+.diag-conf-text{font-size:12px;color:var(--text2);margin-top:3px}
+.conf-ring-wrap{position:relative;margin-left:auto;flex-shrink:0}
+.conf-ring-wrap svg{transform:rotate(-90deg)}
+.conf-ring-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--green-light);font-family:var(--font-display)}
+.diag-rows{display:flex;flex-direction:column;gap:0}
+.diag-row{display:flex;gap:10px;padding:9px 0;border-top:1px solid rgba(34,197,94,.1)}
+.diag-row-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;min-width:68px;padding-top:2px;flex-shrink:0}
+.diag-row-val{font-size:12px;color:var(--muted);line-height:1.5}
+.diag-actions{display:flex;gap:8px;margin-top:14px}
+.diag-act-btn{flex:1;padding:9px;border-radius:var(--r-sm);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(--font-body)}
+.diag-act-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.diag-act-outline:hover{background:rgba(21,128,61,.1)}
+.diag-act-solid{background:var(--green);color:#fff;border:none}
+.diag-act-solid:hover{background:#16a34a}
+.severity-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:600}
+.sev-high{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+.sev-med{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.3)}
+.sev-low{background:rgba(34,197,94,.15);color:#86efac;border:1px solid rgba(34,197,94,.3)}
+
+/* ─── DASHBOARD PAGE ─── */
+.dash-wrap{max-width:900px;margin:0 auto;padding:24px}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;animation:countAnim .5s ease both}
+.stat-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.stat-val{font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--text)}
+.stat-trend{font-size:11px;margin-top:3px}
+.stat-trend.up{color:var(--green-light)}
+.stat-trend.down{color:var(--red)}
+.tab-strip{display:flex;gap:2px;padding:4px;background:var(--card);border-radius:var(--r);margin-bottom:16px;width:fit-content}
+.tab-btn{padding:7px 16px;border-radius:calc(var(--r) - 2px);font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);background:none;border:none;font-family:var(--font-body);transition:all .2s}
+.tab-btn.active{background:var(--bg3);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.crops-table{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.crop-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);transition:background .2s;cursor:pointer}
+.crop-row:last-child{border-bottom:none}
+.crop-row:hover{background:var(--card2)}
+.crop-emoji-box{width:40px;height:40px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.crop-name-main{font-size:13px;font-weight:500;color:var(--text)}
+.crop-name-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.health-bar-wrap{flex:1;min-width:0}
+.health-bar-track{height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-top:6px}
+.health-bar-fill{height:100%;border-radius:4px;animation:barFill .9s ease both}
+.crop-health-pct{font-size:12px;font-weight:500;min-width:32px;text-align:right}
+.status-badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;flex-shrink:0}
+.s-ok{background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.2)}
+.s-warn{background:rgba(245,158,11,.12);color:#fcd34d;border:1px solid rgba(245,158,11,.2)}
+.s-crit{background:rgba(239,68,68,.12);color:#fca5a5;border:1px solid rgba(239,68,68,.2)}
+
+/* ─── MAP / ALERTS PAGE ─── */
+.alerts-wrap{max-width:800px;margin:0 auto;padding:24px}
+.map-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.map-placeholder{height:220px;border-radius:var(--r);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;position:relative;overflow:hidden;background:var(--bg2)}
+.map-dot{position:absolute;border-radius:50%;animation:ping 2s ease-out infinite}
+.alert-list{display:flex;flex-direction:column;gap:10px}
+.alert-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;transition:all .2s;cursor:pointer;animation:fadeUp .4s ease both}
+.alert-card:hover{border-color:var(--border2);background:var(--card2)}
+.alert-sev-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.alert-title{font-size:13px;font-weight:500;color:var(--text)}
+.alert-sub{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
+.alert-meta{display:flex;gap:8px;margin-top:6px;align-items:center}
+.alert-chip{padding:2px 8px;border-radius:20px;font-size:10px;background:rgba(255,255,255,.06);color:var(--muted)}
+
+/* ─── MARKETPLACE ─── */
+.market-wrap{max-width:800px;margin:0 auto;padding:24px}
+.market-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.market-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .25s;text-align:center;animation:fadeUp .4s ease both}
+.market-card:hover{border-color:var(--border2);background:var(--card2);transform:translateY(-3px)}
+.market-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 10px}
+.market-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.market-desc{font-size:11px;color:var(--muted);line-height:1.4}
+.market-price{font-size:12px;font-weight:600;color:var(--green-light);margin-top:8px}
+
+/* ─── EXPERTS PAGE ─── */
+.experts-wrap{max-width:800px;margin:0 auto;padding:24px}
+.expert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.expert-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:all .25s;animation:fadeUp .4s ease both}
+.expert-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.expert-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin-bottom:10px}
+.expert-name{font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--text)}
+.expert-spec{font-size:11px;color:var(--muted);margin-top:3px}
+.expert-rating{display:flex;align-items:center;gap:4px;margin-top:6px;font-size:11px;color:var(--text2)}
+.expert-stars{color:var(--amber)}
+.expert-book-btn{width:100%;margin-top:12px;padding:9px;border-radius:var(--r-sm);background:rgba(21,128,61,.15);border:1px solid var(--border2);color:var(--text3);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(--font-body)}
+.expert-book-btn:hover{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* ─── TOAST ─── */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--card2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);min-width:240px;max-width:340px;pointer-events:all;animation:toastSlide .35s cubic-bezier(.34,1.56,.64,1) both}
+.toast.hiding{animation:toastHide .3s ease forwards}
+.toast-icon{width:28px;height:28px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.toast-icon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.toast-ok .toast-icon{background:rgba(34,197,94,.15);color:var(--green-light)}
+.toast-warn .toast-icon{background:rgba(245,158,11,.15);color:var(--amber)}
+.toast-close{margin-left:auto;width:20px;height:20px;border-radius:4px;border:none;background:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;padding:0;flex-shrink:0}
+
+/* ─── LANDING FEATURES SECTION ─── */
+.home-features{padding:60px 24px;max-width:1000px;margin:0 auto}
+.home-feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:32px}
+.home-feat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:all .3s;animation:fadeUp .5s ease both}
+.home-feat-card:hover{border-color:var(--border2);transform:translateY(-3px)}
+.home-feat-icon{width:44px;height:44px;border-radius:var(--r-sm);background:rgba(21,128,61,.15);display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:22px}
+.home-feat-title{font-family:var(--font-display);font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
+.home-feat-desc{font-size:12px;color:var(--muted);line-height:1.6}
+.home-crops-section{padding:0 24px 60px;max-width:1000px;margin:0 auto}
+.crop-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.crop-tag{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--card);font-size:12px;color:var(--muted);transition:all .2s;cursor:pointer;animation:fadeIn .3s ease both}
+.crop-tag:hover{border-color:var(--green);color:var(--text3);background:rgba(21,128,61,.1)}
+.home-section-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--green-light);margin-bottom:8px}
+.home-section-title{font-family:var(--font-display);font-size:clamp(22px,4vw,36px);font-weight:700;color:var(--text);line-height:1.2}
+
+@media(max-width:600px){
+  .nav-links{display:none}
+  .hero-stats{grid-template-columns:repeat(3,1fr);gap:8px}
+  .scan-btns{grid-template-columns:1fr}
+  .scan-btn-purple{grid-column:1}
+  .dash-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo" onclick="showPage('home')">
+    <div class="nav-logo-box">
+      <svg viewBox="0 0 24 24"><path d="M12 2C8 2 4 6 4 11c0 3 2 5.5 5 6.8V20h6v-2.2C18 16.5 20 14 20 11c0-5-4-9-8-9z"/><path d="M9 21h6M12 11v4"/></svg>
+    </div>
+    <span class="nav-logo-text">KrishiAI</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showPage('home');setActiveNav(this)">Home</button>
+    <button class="nav-link" onclick="showPage('scan');setActiveNav(this)">Scan</button>
+    <button class="nav-link" onclick="showPage('dashboard');setActiveNav(this)">Dashboard</button>
+    <button class="nav-link" onclick="showPage('alerts');setActiveNav(this)">Alerts</button>
+    <button class="nav-link" onclick="showPage('experts');setActiveNav(this)">Experts</button>
+    <button class="nav-link" onclick="showPage('market');setActiveNav(this)">Market</button>
+  </div>
+  <div class="nav-right">
+    <div class="nav-notif" onclick="toast('2 new outbreak alerts in your region','warn')">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <div class="nav-notif-dot"></div>
+    </div>
+    <div class="nav-avatar">RK</div>
+  </div>
+</nav>
+
+<!-- ═══ HOME PAGE ═══ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-bg">
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-orb hero-orb-3"></div>
+      <div class="hero-grid"></div>
+      <div class="particles" id="particles"></div>
+    </div>
+    <div class="hero-badge"><div class="hero-badge-dot"></div>AI-powered · 7 Indian languages · 200+ crops</div>
+    <h1 class="hero-h1">Smart diagnosis<br>for every <span>Indian farmer</span></h1>
+    <p class="hero-sub">Instantly detect crop diseases, nutrient deficiencies, and pest attacks using AI. Get treatment plans in your language.</p>
+    <div class="hero-cta">
+      <button class="btn-primary" onclick="showPage('scan');setActiveNav(document.querySelectorAll('.nav-link')[1])">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 8l5 4 5-4"/></svg>
+        Scan your crop
+      </button>
+      <button class="btn-outline" onclick="showPage('dashboard');setActiveNav(document.querySelectorAll('.nav-link')[2])">
+        View dashboard →
+      </button>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">2M+</div><div class="hero-stat-label">Farmers helped</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">96%</div><div class="hero-stat-label">AI accuracy</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">200+</div><div class="hero-stat-label">Crops covered</div></div>
+    </div>
+  </div>
+
+  <div class="features-strip">
+    <div class="feat-chip"><div class="feat-chip-icon">🔬</div>Disease detection</div>
+    <div class="feat-chip"><div class="feat-chip-icon">🧪</div>Nutrient analysis</div>
+    <div class="feat-chip"><div class="feat-chip-icon">🐛</div>Pest identification</div>
+    <div class="feat-chip"><div class="feat-chip-icon">💧</div>Water stress</div>
+    <div class="feat-chip"><div class="feat-chip-icon">🍄</div>Fungal infections</div>
+    <div class="feat-chip"><div class="feat-chip-icon">🌱</div>Soil issues</div>
+    <div class="feat-chip"><div class="feat-chip-icon">🌿</div>Leaf discoloration</div>
+    <div class="feat-chip"><div class="feat-chip-icon">🌡</div>Environmental stress</div>
+  </div>
+
+  <div class="home-features">
+    <div class="home-section-label">Why KrishiAI</div>
+    <div class="home-section-title">Everything a farmer needs,<br>built into one app</div>
+    <div class="home-feat-grid">
+      <div class="home-feat-card" style="animation-delay:.05s">
+        <div class="home-feat-icon">📸</div>
+        <div class="home-feat-title">Instant AI scan</div>
+        <div class="home-feat-desc">Photo → diagnosis in under 3 seconds. Works offline in low-connectivity areas.</div>
+      </div>
+      <div class="home-feat-card" style="animation-delay:.1s">
+        <div class="home-feat-icon">🗣</div>
+        <div class="home-feat-title">Voice diagnosis</div>
+        <div class="home-feat-desc">Describe your problem in Hindi, Kannada, Tamil, Telugu, or any regional language.</div>
+      </div>
+      <div class="home-feat-card" style="animation-delay:.15s">
+        <div class="home-feat-icon">🗺</div>
+        <div class="home-feat-title">Regional alerts</div>
+        <div class="home-feat-desc">Real-time outbreak heatmaps by district. Know what's hitting your neighbours first.</div>
+      </div>
+      <div class="home-feat-card" style="animation-delay:.2s">
+        <div class="home-feat-icon">👨‍⚕️</div>
+        <div class="home-feat-title">Expert consults</div>
+        <div class="home-feat-desc">Book a certified agronomist from IARI, KAU, TNAU for ₹149 per session.</div>
+      </div>
+      <div class="home-feat-card" style="animation-delay:.25s">
+        <div class="home-feat-icon">📅</div>
+        <div class="home-feat-title">Spray scheduler</div>
+        <div class="home-feat-desc">AI-generated spray calendar with dosage, timing, and weather-adjusted reminders.</div>
+      </div>
+      <div class="home-feat-card" style="animation-delay:.3s">
+        <div class="home-feat-icon">🛒</div>
+        <div class="home-feat-title">Agri marketplace</div>
+        <div class="home-feat-desc">Buy the exact fertilizer or pesticide recommended — delivered to your farm gate.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-crops-section">
+    <div class="home-section-label">Crop coverage</div>
+    <div class="home-section-title">200+ crops across all categories</div>
+    <div class="crop-tags">
+      <span class="crop-tag">🍅 Tomato</span><span class="crop-tag">🥔 Potato</span><span class="crop-tag">🧅 Onion</span>
+      <span class="crop-tag">🌶 Chilli</span><span class="crop-tag">🍆 Brinjal</span><span class="crop-tag">🥦 Okra</span>
+      <span class="crop-tag">🥕 Carrot</span><span class="crop-tag">🫘 Beans</span><span class="crop-tag">🌾 Paddy</span>
+      <span class="crop-tag">🌽 Maize</span><span class="crop-tag">🌿 Ragi</span><span class="crop-tag">☕ Coffee</span>
+      <span class="crop-tag">🍵 Tea</span><span class="crop-tag">🍌 Banana</span><span class="crop-tag">🥭 Mango</span>
+      <span class="crop-tag">🥥 Coconut</span><span class="crop-tag">🎋 Sugarcane</span><span class="crop-tag">🌿 Cotton</span>
+      <span class="crop-tag">🌺 Turmeric</span><span class="crop-tag">🫚 Ginger</span><span class="crop-tag">🌶 Pepper</span>
+      <span class="crop-tag">🌱 Cardamom</span><span class="crop-tag">🍐 Papaya</span><span class="crop-tag">🌿 Neem</span>
+      <span class="crop-tag">+ 180 more</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCAN PAGE ═══ -->
+<div class="page" id="page-scan">
+  <div class="scan-wrap">
+    <div class="section-title" id="pg-scan-title">Scan your crop</div>
+    <div class="section-sub" id="pg-scan-sub">Upload or photograph a diseased leaf, stem, fruit, or root. Our AI identifies the issue in seconds.</div>
+
+    <div class="lang-bar">
+      <button class="lang-btn active" onclick="setLang(this,'en')">English</button>
+      <button class="lang-btn" onclick="setLang(this,'hi')">हिंदी</button>
+      <button class="lang-btn" onclick="setLang(this,'kn')">ಕನ್ನಡ</button>
+      <button class="lang-btn" onclick="setLang(this,'ta')">தமிழ்</button>
+      <button class="lang-btn" onclick="setLang(this,'te')">తెలుగు</button>
+      <button class="lang-btn" onclick="setLang(this,'ml')">മലയാളം</button>
+      <button class="lang-btn" onclick="setLang(this,'mr')">मराठी</button>
+    </div>
+
+    <div id="diag-result-container"></div>
+
+    <div class="scan-card">
+      <div class="scan-area" onclick="startScan()">
+        <div class="scan-frame" id="scan-frame">
+          <div class="scan-line-anim" id="scan-line"></div>
+          <div class="scan-ring-wrap">
+            <div class="scan-ring"></div>
+            <div class="scan-icon-bg" id="scan-icon-bg">
+              <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+          </div>
+          <div class="scan-hint" id="scan-hint">Tap to activate camera scan</div>
+          <div class="scan-spinner-wrap" id="scan-spinner">
+            <div class="spinner"></div>
+            <span style="font-size:12px;color:var(--muted)" id="scan-status">Analysing image...</span>
+          </div>
+        </div>
+      </div>
+      <div class="scan-btns">
+        <button class="scan-btn scan-btn-green" onclick="doScan(this,'camera')">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span id="btn-cam">Camera scan</span>
+          <div class="scan-btn-ripple"></div>
+        </button>
+        <button class="scan-btn scan-btn-blue" onclick="doScan(this,'upload')">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span id="btn-up">Upload photo</span>
+          <div class="scan-btn-ripple"></div>
+        </button>
+        <button class="scan-btn scan-btn-purple" onclick="doScan(this,'voice')">
+          <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
+          <span id="btn-voice">Voice diagnosis — describe your problem</span>
+          <div class="scan-btn-ripple"></div>
+        </button>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--green-light);margin-bottom:10px">Recent scans</div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div class="crop-row" style="padding:10px 0;border-radius:0" onclick="showDiagnosis('camera')">
+          <div class="crop-emoji-box" style="background:rgba(245,158,11,.1);width:36px;height:36px;font-size:18px">🍅</div>
+          <div style="flex:1"><div class="crop-name-main">Tomato — Early blight</div><div class="crop-name-sub">Field A · May 19 · 94% conf.</div></div>
+          <span class="status-badge s-warn">Treated</span>
+        </div>
+        <div class="crop-row" style="padding:10px 0;border-radius:0" onclick="showDiagnosis('upload')">
+          <div class="crop-emoji-box" style="background:rgba(239,68,68,.1);width:36px;height:36px;font-size:18px">🥔</div>
+          <div style="flex:1"><div class="crop-name-main">Potato — Late blight</div><div class="crop-name-sub">Field C · May 18 · 97% conf.</div></div>
+          <span class="status-badge s-crit">Active</span>
+        </div>
+        <div class="crop-row" style="padding:10px 0;border-radius:0;border-bottom:none" onclick="showDiagnosis('voice')">
+          <div class="crop-emoji-box" style="background:rgba(34,197,94,.1);width:36px;height:36px;font-size:18px">🌾</div>
+          <div style="flex:1"><div class="crop-name-main">Paddy — Healthy</div><div class="crop-name-sub">Field B · May 17 · 99% conf.</div></div>
+          <span class="status-badge s-ok">Clear</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD PAGE ═══ -->
+<div class="page" id="page-dashboard">
+  <div class="dash-wrap">
+    <div class="section-title">Farm dashboard</div>
+    <div class="section-sub">Overview of your crop health, scan history, and AI insights</div>
+
+    <div class="dash-grid">
+      <div class="stat-card" style="animation-delay:.05s"><div class="stat-label">Total scans</div><div class="stat-val">1,284</div><div class="stat-trend up">↑ 18% this month</div></div>
+      <div class="stat-card" style="animation-delay:.1s"><div class="stat-label">Active crops</div><div class="stat-val">8</div><div class="stat-trend up">↑ 2 added</div></div>
+      <div class="stat-card" style="animation-delay:.15s"><div class="stat-label">Diseases detected</div><div class="stat-val">34</div><div class="stat-trend down">↓ 5 active</div></div>
+      <div class="stat-card" style="animation-delay:.2s"><div class="stat-label">AI accuracy</div><div class="stat-val">96%</div><div class="stat-trend up">↑ improving</div></div>
+    </div>
+
+    <div class="tab-strip">
+      <button class="tab-btn active" onclick="dashTab(this,'crops')">Crop health</button>
+      <button class="tab-btn" onclick="dashTab(this,'history')">Scan history</button>
+      <button class="tab-btn" onclick="dashTab(this,'schedule')">Spray schedule</button>
+    </div>
+
+    <div id="dtab-crops" class="crops-table">
+      <div class="crop-row"><div class="crop-emoji-box" style="background:rgba(245,158,11,.12)">🍅</div><div class="health-bar-wrap"><div class="crop-name-main">Tomato — Field A</div><div class="health-bar-track"><div class="health-bar-fill" style="--w:82%;width:82%;background:var(--green-light);animation-delay:.1s"></div></div><div class="crop-name-sub">Early blight risk · last scanned 1d ago</div></div><div class="crop-health-pct" style="color:var(--green-light)">82%</div><span class="status-badge s-warn">Watch</span></div>
+      <div class="crop-row"><div class="crop-emoji-box" style="background:rgba(34,197,94,.12)">🌾</div><div class="health-bar-wrap"><div class="crop-name-main">Paddy — Field B</div><div class="health-bar-track"><div class="health-bar-fill" style="--w:91%;width:91%;background:var(--green-light);animation-delay:.2s"></div></div><div class="crop-name-sub">No issues · last scanned 2d ago</div></div><div class="crop-health-pct" style="color:var(--green-light)">91%</div><span class="status-badge s-ok">Healthy</span></div>
+      <div class="crop-row"><div class="crop-emoji-box" style="background:rgba(239,68,68,.12)">🥔</div><div class="health-bar-wrap"><div class="crop-name-main">Potato — Field C</div><div class="health-bar-track"><div class="health-bar-fill" style="--w:54%;width:54%;background:var(--red);animation-delay:.3s"></div></div><div class="crop-name-sub">Late blight confirmed · needs treatment</div></div><div class="crop-health-pct" style="color:var(--red)">54%</div><span class="status-badge s-crit">Critical</span></div>
+      <div class="crop-row"><div class="crop-emoji-box" style="background:rgba(245,158,11,.12)">🧅</div><div class="health-bar-wrap"><div class="crop-name-main">Onion — Field D</div><div class="health-bar-track"><div class="health-bar-fill" style="--w:76%;width:76%;background:var(--amber);animation-delay:.4s"></div></div><div class="crop-name-sub">Nitrogen deficiency · fertilizer applied</div></div><div class="crop-health-pct" style="color:var(--amber)">76%</div><span class="status-badge s-warn">Watch</span></div>
+      <div class="crop-row"><div class="crop-emoji-box" style="background:rgba(34,197,94,.12)">🌶</div><div class="health-bar-wrap"><div class="crop-name-main">Chilli — Field E</div><div class="health-bar-track"><div class="health-bar-fill" style="--w:88%;width:88%;background:var(--green-light);animation-delay:.5s"></div></div><div class="crop-name-sub">Mild aphid activity · neem spray done</div></div><div class="crop-health-pct" style="color:var(--green-light)">88%</div><span class="status-badge s-ok">Good</span></div>
+      <div class="crop-row"><div class="crop-emoji-box" style="background:rgba(34,197,94,.12)">🫘</div><div class="health-bar-wrap"><div class="crop-name-main">Beans — Field F</div><div class="health-bar-track"><div class="health-bar-fill" style="--w:95%;width:95%;background:var(--green-light);animation-delay:.6s"></div></div><div class="crop-name-sub">Excellent condition · no intervention needed</div></div><div class="crop-health-pct" style="color:var(--green-light)">95%</div><span class="status-badge s-ok">Healthy</span></div>
+    </div>
+
+    <div id="dtab-history" style="display:none" class="crops-table">
+      <div class="crop-row"><div class="crop-emoji-box" style="background:rgba(245,158,11,.12);font-size:18px">🍅</div><div style="flex:1"><div class="crop-name-main">Tomato — Early blight</div><div class="crop-name-sub">94% confidence · Mancozeb 2g/L prescribed · May 19</div></div><span class="status-badge s-warn">Treated</span></div>
+      <div class="crop-row"><div class="crop-emoji-box" style="background:rgba(239,68,68,.12);font-size:18px">🥔</div><div style="flex:1"><div class="crop-name-main">Potato — Late blight</div><div class="crop-name-sub">97% confidence · Expert consultation booked · May 18</div></div><span class="status-badge s-crit">Active</span></div>
+      <div class="crop-row"><div class="crop-emoji-box" style="background:rgba(34,197,94,.12);font-size:18px">🌾</div><div style="flex:1"><div class="crop-name-main">Paddy — Healthy</div><div class="crop-name-sub">99% confidence · No action needed · May 17</div></div><span class="status-badge s-ok">Clear</span></div>
+      <div class="crop-row"><div class="crop-emoji-box" style="background:rgba(245,158,11,.12);font-size:18px">🧅</div><div style="flex:1"><div class="crop-name-main">Onion — Nitrogen deficiency</div><div class="crop-name-sub">91% confidence · Urea 5kg/acre applied · May 15</div></div><span class="status-badge s-ok">Done</span></div>
+    </div>
+
+    <div id="dtab-schedule" style="display:none" class="crops-table">
+      <div class="crop-row"><div style="width:44px;height:44px;background:rgba(239,68,68,.12);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:600;color:#fca5a5">May<br>22</div><div style="flex:1"><div class="crop-name-main">Tomato — Mancozeb spray</div><div class="crop-name-sub">2g/L · 15L water · Field A · Early blight treatment round 2</div></div><span class="status-badge s-warn">Upcoming</span></div>
+      <div class="crop-row"><div style="width:44px;height:44px;background:rgba(239,68,68,.12);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:600;color:#fca5a5">May<br>23</div><div style="flex:1"><div class="crop-name-main">Potato — Metalaxyl spray</div><div class="crop-name-sub">2.5g/L · 20L water · Field C · Late blight control</div></div><span class="status-badge s-crit">Urgent</span></div>
+      <div class="crop-row"><div style="width:44px;height:44px;background:rgba(34,197,94,.12);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:600;color:#86efac">May<br>25</div><div style="flex:1"><div class="crop-name-main">Onion — Urea top dressing</div><div class="crop-name-sub">5kg/acre · Field D · Nitrogen boost week 2</div></div><span class="status-badge s-ok">Planned</span></div>
+      <div class="crop-row"><div style="width:44px;height:44px;background:rgba(34,197,94,.12);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:600;color:#86efac">May<br>28</div><div style="flex:1"><div class="crop-name-main">All crops — Neem oil spray</div><div class="crop-name-sub">5ml/L · Preventive aphid + whitefly control</div></div><span class="status-badge s-ok">Planned</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ALERTS PAGE ═══ -->
+<div class="page" id="page-alerts">
+  <div class="alerts-wrap">
+    <div class="section-title">Regional outbreak alerts</div>
+    <div class="section-sub">Live disease intelligence for Karnataka and surrounding districts</div>
+
+    <div class="map-card">
+      <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:12px;letter-spacing:.05em;text-transform:uppercase">Outbreak heatmap — Karnataka</div>
+      <div class="map-placeholder">
+        <div class="map-dot" style="width:18px;height:18px;background:rgba(239,68,68,.6);top:38%;left:22%;animation-delay:0s"></div>
+        <div class="map-dot" style="width:24px;height:24px;background:rgba(239,68,68,.4);top:38%;left:22%;animation-delay:.3s"></div>
+        <div class="map-dot" style="width:14px;height:14px;background:rgba(245,158,11,.6);top:28%;left:40%;animation-delay:.5s"></div>
+        <div class="map-dot" style="width:20px;height:20px;background:rgba(245,158,11,.4);top:28%;left:40%;animation-delay:.8s"></div>
+        <div class="map-dot" style="width:10px;height:10px;background:rgba(34,197,94,.7);top:55%;left:60%;animation-delay:1s"></div>
+        <div class="map-dot" style="width:16px;height:16px;background:rgba(34,197,94,.4);top:55%;left:60%;animation-delay:1.3s"></div>
+        <div class="map-dot" style="width:12px;height:12px;background:rgba(239,68,68,.6);top:20%;left:55%;animation-delay:.2s"></div>
+        <svg viewBox="0 0 280 180" width="100%" style="opacity:.25;position:absolute;inset:0">
+          <path d="M60 90 Q80 60 120 50 Q160 40 180 70 Q200 100 190 130 Q170 150 140 145 Q100 140 80 120 Z" fill="none" stroke="var(--green)" stroke-width="1"/>
+          <path d="M80 70 Q100 55 130 60 Q160 65 170 90 Q165 115 145 120 Q115 125 95 105 Z" fill="rgba(34,197,94,.06)" stroke="var(--green)" stroke-width=".5"/>
+        </svg>
+        <div style="position:relative;text-align:center">
+          <div style="font-size:13px;color:var(--muted)">Interactive map</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:2px">3 active outbreak zones detected</div>
+        </div>
+        <div style="display:flex;gap:12px;position:absolute;bottom:12px;left:12px">
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block"></span>Critical</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block"></span>Warning</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block"></span>Clear</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-list">
+      <div class="alert-card" style="animation-delay:.05s" onclick="toast('Late blight alert — spray Mancozeb within 48h','warn')">
+        <div class="alert-sev-dot" style="background:#ef4444"></div>
+        <div style="flex:1">
+          <div class="alert-title">Late blight outbreak — Belagavi district</div>
+          <div class="alert-sub">47 farms affected. Spray Mancozeb 2g/L within 48 hours. Avoid overhead irrigation. Isolate infected plots.</div>
+          <div class="alert-meta">
+            <span class="alert-chip">🥔 Potato</span>
+            <span class="alert-chip">47 farms</span>
+            <span class="alert-chip">Belagavi</span>
+            <span class="alert-chip">Critical</span>
+          </div>
+        </div>
+      </div>
+      <div class="alert-card" style="animation-delay:.1s" onclick="toast('Aphid alert — neem oil spray recommended','warn')">
+        <div class="alert-sev-dot" style="background:#f59e0b"></div>
+        <div style="flex:1">
+          <div class="alert-title">Aphid surge — Dharwad district</div>
+          <div class="alert-sub">Sucking pest pressure rising. Monitor weekly. Spray neem oil 5ml/L or Imidacloprid 0.3ml/L.</div>
+          <div class="alert-meta">
+            <span class="alert-chip">🌶 Chilli</span>
+            <span class="alert-chip">🍅 Tomato</span>
+            <span class="alert-chip">Dharwad</span>
+            <span class="alert-chip">Warning</span>
+          </div>
+        </div>
+      </div>
+      <div class="alert-card" style="animation-delay:.15s">
+        <div class="alert-sev-dot" style="background:#f59e0b"></div>
+        <div style="flex:1">
+          <div class="alert-title">Rust fungus risk — pre-monsoon warning</div>
+          <div class="alert-sub">Wheat and barley farmers in Raichur district. Apply Propiconazole 1ml/L proactively before rains.</div>
+          <div class="alert-meta">
+            <span class="alert-chip">🌾 Wheat</span>
+            <span class="alert-chip">Raichur</span>
+            <span class="alert-chip">Pre-monsoon</span>
+          </div>
+        </div>
+      </div>
+      <div class="alert-card" style="animation-delay:.2s">
+        <div class="alert-sev-dot" style="background:#22c55e"></div>
+        <div style="flex:1">
+          <div class="alert-title">Paddy season alert cleared — Mysuru district</div>
+          <div class="alert-sub">No active disease threats detected. Continue routine monitoring. Next advisory: June 1.</div>
+          <div class="alert-meta">
+            <span class="alert-chip">🌾 Paddy</span>
+            <span class="alert-chip">Mysuru</span>
+            <span class="alert-chip">All clear</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EXPERTS PAGE ═══ -->
+<div class="page" id="page-experts">
+  <div class="experts-wrap">
+    <div class="section-title">Expert agronomists</div>
+    <div class="section-sub">Book a certified expert for a video or WhatsApp consultation. Response within 2 hours.</div>
+    <div class="expert-grid">
+      <div class="expert-card" style="animation-delay:.05s">
+        <div class="expert-avatar" style="background:rgba(34,197,94,.15);color:#86efac">DR</div>
+        <div class="expert-name">Dr. Ravi Shankar</div>
+        <div class="expert-spec">Horticulture · IARI New Delhi</div>
+        <div class="expert-rating"><span class="expert-stars">★★★★★</span> 4.9 · 2,140 consults</div>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(34,197,94,.1);color:var(--text2)">Hindi</span>
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(34,197,94,.1);color:var(--text2)">Telugu</span>
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(34,197,94,.1);color:var(--text2)">English</span>
+        </div>
+        <button class="expert-book-btn" onclick="toast('Booking Dr. Ravi Shankar — ₹199/session')">Book ₹199 / session</button>
+      </div>
+      <div class="expert-card" style="animation-delay:.1s">
+        <div class="expert-avatar" style="background:rgba(59,130,246,.15);color:#93c5fd">PM</div>
+        <div class="expert-name">Dr. Priya Menon</div>
+        <div class="expert-spec">Plant pathology · KAU Kerala</div>
+        <div class="expert-rating"><span class="expert-stars">★★★★★</span> 4.8 · 980 consults</div>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(59,130,246,.1);color:#93c5fd">Malayalam</span>
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(59,130,246,.1);color:#93c5fd">Tamil</span>
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(59,130,246,.1);color:#93c5fd">English</span>
+        </div>
+        <button class="expert-book-btn" onclick="toast('Booking Dr. Priya Menon — ₹149/session')">Book ₹149 / session</button>
+      </div>
+      <div class="expert-card" style="animation-delay:.15s">
+        <div class="expert-avatar" style="background:rgba(245,158,11,.15);color:#fcd34d">SK</div>
+        <div class="expert-name">Dr. Suresh Kumar</div>
+        <div class="expert-spec">Soil science · TNAU Coimbatore</div>
+        <div class="expert-rating"><span class="expert-stars">★★★★☆</span> 4.7 · 1,560 consults</div>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(245,158,11,.1);color:#fcd34d">Tamil</span>
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(245,158,11,.1);color:#fcd34d">Telugu</span>
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(245,158,11,.1);color:#fcd34d">Kannada</span>
+        </div>
+        <button class="expert-book-btn" onclick="toast('Booking Dr. Suresh Kumar — ₹249/session')">Book ₹249 / session</button>
+      </div>
+      <div class="expert-card" style="animation-delay:.2s">
+        <div class="expert-avatar" style="background:rgba(139,92,246,.15);color:#c4b5fd">AN</div>
+        <div class="expert-name">Dr. Anita Nair</div>
+        <div class="expert-spec">Entomology · UAS Bangalore</div>
+        <div class="expert-rating"><span class="expert-stars">★★★★★</span> 4.9 · 760 consults</div>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(139,92,246,.1);color:#c4b5fd">Kannada</span>
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(139,92,246,.1);color:#c4b5fd">Hindi</span>
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(139,92,246,.1);color:#c4b5fd">English</span>
+        </div>
+        <button class="expert-book-btn" onclick="toast('Booking Dr. Anita Nair — ₹299/session')">Book ₹299 / session</button>
+      </div>
+      <div class="expert-card" style="animation-delay:.25s">
+        <div class="expert-avatar" style="background:rgba(239,68,68,.15);color:#fca5a5">MS</div>
+        <div class="expert-name">Dr. Mohan Singh</div>
+        <div class="expert-spec">Agronomy · PAU Ludhiana</div>
+        <div class="expert-rating"><span class="expert-stars">★★★★☆</span> 4.6 · 3,200 consults</div>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(239,68,68,.1);color:#fca5a5">Hindi</span>
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(239,68,68,.1);color:#fca5a5">Punjabi</span>
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(239,68,68,.1);color:#fca5a5">English</span>
+        </div>
+        <button class="expert-book-btn" onclick="toast('Booking Dr. Mohan Singh — ₹179/session')">Book ₹179 / session</button>
+      </div>
+      <div class="expert-card" style="animation-delay:.3s">
+        <div class="expert-avatar" style="background:rgba(34,197,94,.15);color:#86efac">VP</div>
+        <div class="expert-name">Dr. Vani Pillai</div>
+        <div class="expert-spec">Organic farming · ICAR Pune</div>
+        <div class="expert-rating"><span class="expert-stars">★★★★★</span> 5.0 · 420 consults</div>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(34,197,94,.1);color:var(--text2)">Marathi</span>
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(34,197,94,.1);color:var(--text2)">Hindi</span>
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(34,197,94,.1);color:var(--text2)">English</span>
+        </div>
+        <button class="expert-book-btn" onclick="toast('Booking Dr. Vani Pillai — ₹299/session')">Book ₹299 / session</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MARKETPLACE PAGE ═══ -->
+<div class="page" id="page-market">
+  <div class="market-wrap">
+    <div class="section-title">Agri marketplace</div>
+    <div class="section-sub">AI-recommended products delivered to your farm. All items verified by agronomists.</div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+      <button class="lang-btn active" onclick="filterMarket(this,'all')">All products</button>
+      <button class="lang-btn" onclick="filterMarket(this,'fert')">Fertilizers</button>
+      <button class="lang-btn" onclick="filterMarket(this,'pest')">Pesticides</button>
+      <button class="lang-btn" onclick="filterMarket(this,'seed')">Seeds</button>
+      <button class="lang-btn" onclick="filterMarket(this,'org')">Organic</button>
+    </div>
+
+    <div class="market-grid">
+      <div class="market-card" style="animation-delay:.05s" data-cat="fert" onclick="toast('Added Mancozeb WP to cart')"><div class="market-icon" style="background:rgba(34,197,94,.12)">🌿</div><div class="market-name">Mancozeb 75% WP</div><div class="market-desc">Broad-spectrum fungicide. Controls early and late blight.</div><div class="market-price">₹180 / 500g</div></div>
+      <div class="market-card" style="animation-delay:.08s" data-cat="fert" onclick="toast('Added Urea to cart')"><div class="market-icon" style="background:rgba(59,130,246,.12)">💧</div><div class="market-name">Urea (46% N)</div><div class="market-desc">Fast-release nitrogen for vegetative growth boost.</div><div class="market-price">₹280 / 10kg</div></div>
+      <div class="market-card" style="animation-delay:.11s" data-cat="pest" onclick="toast('Added Neem Oil to cart')"><div class="market-icon" style="background:rgba(245,158,11,.12)">🌿</div><div class="market-name">Cold press neem oil</div><div class="market-desc">Natural pesticide. Controls aphids, whitefly, mites.</div><div class="market-price">₹120 / 250ml</div></div>
+      <div class="market-card" style="animation-delay:.14s" data-cat="seed" onclick="toast('Added Tomato seeds to cart')"><div class="market-icon" style="background:rgba(239,68,68,.12)">🍅</div><div class="market-name">Hybrid tomato seeds</div><div class="market-desc">Disease-resistant variety. High yield 18–22t/acre.</div><div class="market-price">₹340 / 10g</div></div>
+      <div class="market-card" style="animation-delay:.17s" data-cat="fert" onclick="toast('Added DAP to cart')"><div class="market-icon" style="background:rgba(139,92,246,.12)">⚗️</div><div class="market-name">DAP (18:46:0)</div><div class="market-desc">Phosphate fertilizer for root development and flowering.</div><div class="market-price">₹660 / 25kg</div></div>
+      <div class="market-card" style="animation-delay:.2s" data-cat="org" onclick="toast('Added Vermicompost to cart')"><div class="market-icon" style="background:rgba(34,197,94,.12)">🌱</div><div class="market-name">Vermicompost</div><div class="market-desc">Certified organic. Improves soil structure and microbial life.</div><div class="market-price">₹220 / 5kg</div></div>
+      <div class="market-card" style="animation-delay:.23s" data-cat="pest" onclick="toast('Added Metalaxyl to cart')"><div class="market-icon" style="background:rgba(239,68,68,.12)">🧪</div><div class="market-name">Metalaxyl 8% WP</div><div class="market-desc">Systemic fungicide for late blight and downy mildew.</div><div class="market-price">₹240 / 250g</div></div>
+      <div class="market-card" style="animation-delay:.26s" data-cat="org" onclick="toast('Added Trichoderma to cart')"><div class="market-icon" style="background:rgba(34,197,94,.12)">🔬</div><div class="market-name">Trichoderma viride</div><div class="market-desc">Bio-fungicide. Controls soil-borne pathogens naturally.</div><div class="market-price">₹160 / 200g</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+const LANGS = {
+  en:{title:'Scan your crop',sub:'Upload or photograph a diseased leaf, stem, fruit, or root.',cam:'Camera scan',up:'Upload photo',voice:'Voice diagnosis — describe your problem'},
+  hi:{title:'अपनी फसल स्कैन करें',sub:'रोगग्रस्त पत्ती, तना, फल या जड़ की फोटो अपलोड करें।',cam:'कैमरा स्कैन',up:'फोटो अपलोड',voice:'आवाज़ से निदान — अपनी समस्या बताएं'},
+  kn:{title:'ನಿಮ್ಮ ಬೆಳೆ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ',sub:'ರೋಗಗ್ರಸ್ತ ಎಲೆ, ಕಾಂಡ, ಹಣ್ಣು ಅಥವಾ ಬೇರಿನ ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ.',cam:'ಕ್ಯಾಮೆರಾ ಸ್ಕ್ಯಾನ್',up:'ಫೋಟೋ ಅಪ್‌ಲೋಡ್',voice:'ಧ್ವನಿ ನಿದಾನ — ನಿಮ್ಮ ಸಮಸ್ಯೆ ಹೇಳಿ'},
+  ta:{title:'உங்கள் பயிரை ஸ்கேன் செய்யுங்கள்',sub:'நோயுற்ற இலை, தண்டு, பழம் அல்லது வேரின் படம் பதிவேற்றவும்.',cam:'கேமரா ஸ்கேன்',up:'படம் பதிவேற்று',voice:'குரல் மூலம் கண்டறிதல்'},
+  te:{title:'మీ పంటను స్కాన్ చేయండి',sub:'వ్యాధిగ్రస్త ఆకు, కాండం, పండు లేదా వేరు ఫోటో అప్‌లోడ్ చేయండి.',cam:'కెమెరా స్కాన్',up:'ఫోటో అప్‌లోడ్',voice:'వాయిస్ నిర్ధారణ — మీ సమస్య చెప్పండి'},
+  ml:{title:'നിങ്ങളുടെ വിള സ്കാൻ ചെയ്യൂ',sub:'രോഗബാധിത ഇല, തണ്ട്, ഫലം അല്ലെങ്കിൽ വേര് ഫോട്ടോ അപ്‌ലോഡ് ചെയ്യൂ.',cam:'ക്യാമറ സ്കാൻ',up:'ഫോട്ടോ അപ്‌ലോഡ്',voice:'ശബ്ദ നിർണ്ണയം — നിങ്ങളുടെ പ്രശ്നം പറയൂ'},
+  mr:{title:'आपले पीक स्कॅन करा',sub:'रोगग्रस्त पान, खोड, फळ किंवा मूळ यांचा फोटो अपलोड करा.',cam:'कॅमेरा स्कॅन',up:'फोटो अपलोड',voice:'आवाजाद्वारे निदान — आपली समस्या सांगा'}
+};
+
+const DIAGNOSES = {
+  camera:{disease:'Tomato early blight',pathogen:'Alternaria solani',conf:94,severity:'medium',organic:'Neem oil 5ml/L every 7 days. Trichoderma viride soil drench.',chemical:'Mancozeb 75% WP 2g/L. Spray every 7–10 days.',action:'Remove lower infected leaves. Avoid overhead irrigation. Mulch soil.',recover:'14–21 days with consistent treatment'},
+  upload:{disease:'Potato late blight',pathogen:'Phytophthora infestans',conf:97,severity:'high',organic:'Copper sulphate 3g/L. Bordeaux mixture 1%.',chemical:'Metalaxyl-M 2.5g/L + Chlorothalonil 2g/L. Apply immediately.',action:'Isolate affected plants. Do not apply during flowering. Remove and bury infected debris.',recover:'21–35 days with strict management'},
+  voice:{disease:'Nitrogen deficiency',pathogen:'Nutrient imbalance',conf:91,severity:'low',organic:'Vermicompost 2t/acre. Azospirillum biofertilizer 2kg/acre.',chemical:'Urea 5kg/acre top dressing. DAP at sowing.',action:'Apply in 2 splits. Test soil pH first (target 6.0–7.0). Ensure adequate moisture.',recover:'10–14 days. Re-scan after treatment.'}
+};
+
+let scanning = false;
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function setActiveNav(el) {
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setLang(btn, code) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const l = LANGS[code] || LANGS.en;
+  const el = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+  el('pg-scan-title', l.title);
+  el('pg-scan-sub', l.sub);
+  el('btn-cam', l.cam);
+  el('btn-up', l.up);
+  el('btn-voice', l.voice);
+  el('scan-hint', 'Tap to activate camera scan');
+}
+
+function startScan() {
+  if(scanning) return;
+  animateScan('camera');
+}
+
+function doScan(btn, type) {
+  const rip = btn.querySelector('.scan-btn-ripple');
+  rip.classList.remove('active');
+  void rip.offsetWidth;
+  rip.classList.add('active');
+  if(type === 'voice') {
+    const span = btn.querySelector('span');
+    const orig = span.textContent;
+    span.textContent = '🎙 Listening...';
+    setTimeout(() => { span.textContent = orig; animateScan(type); }, 1800);
+  } else {
+    animateScan(type);
+  }
+}
+
+function animateScan(type) {
+  if(scanning) return;
+  scanning = true;
+  const frame = document.getElementById('scan-frame');
+  const hint = document.getElementById('scan-hint');
+  const spinner = document.getElementById('scan-spinner');
+  const iconBg = document.getElementById('scan-icon-bg');
+  const statusEl = document.getElementById('scan-status');
+  const steps = ['Preprocessing image...','Running AI model...','Cross-referencing database...','Generating treatment plan...'];
+  let step = 0;
+  frame.classList.add('scanning');
+  hint.style.display = 'none';
+  iconBg.style.display = 'none';
+  spinner.style.display = 'flex';
+  const stepInterval = setInterval(() => { if(step < steps.length) { statusEl.textContent = steps[step++]; } }, 500);
+  setTimeout(() => {
+    clearInterval(stepInterval);
+    scanning = false;
+    frame.classList.remove('scanning');
+    frame.classList.add('done');
+    spinner.style.display = 'none';
+    iconBg.style.display = 'flex';
+    hint.style.display = '';
+    hint.textContent = '✓ Scan complete — see results below';
+    hint.style.color = 'var(--green-light)';
+    showDiagnosis(type);
+    setTimeout(() => { frame.classList.remove('done'); hint.textContent = 'Tap to activate camera scan'; hint.style.color = ''; }, 4000);
+  }, 2400);
+}
+
+function showDiagnosis(type) {
+  const d = DIAGNOSES[type] || DIAGNOSES.camera;
+  const circ = 2 * Math.PI * 20;
+  const offset = circ * (1 - d.conf / 100);
+  const sevClass = d.severity === 'high' ? 'sev-high' : d.severity === 'medium' ? 'sev-med' : 'sev-low';
+  const sevLabel = d.severity === 'high' ? 'High severity' : d.severity === 'medium' ? 'Medium severity' : 'Low severity';
+  const container = document.getElementById('diag-result-container');
+  container.innerHTML = `
+  <div class="diag-result">
+    <div class="diag-card">
+      <div class="diag-top">
+        <div class="diag-icon-box">
+          <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9S3 16.97 3 12 7.03 3 12 3s9 4.03 9 9z"/></svg>
+        </div>
+        <div style="flex:1">
+          <div class="diag-disease">${d.disease}</div>
+          <div class="diag-conf-text">${d.pathogen} · ${d.conf}% confidence</div>
+          <div style="margin-top:5px"><span class="severity-tag ${sevClass}">${sevLabel}</span></div>
+        </div>
+        <div class="conf-ring-wrap">
+          <svg width="52" height="52" viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="20" fill="none" stroke="rgba(34,197,94,.15)" stroke-width="3"/>
+            <circle cx="26" cy="26" r="20" fill="none" stroke="#22c55e" stroke-width="3"
+              stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${circ.toFixed(1)}"
+              stroke-linecap="round"
+              style="transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);animation:none"
+              id="conf-arc"/>
+          </svg>
+          <div class="conf-ring-label" id="conf-label">0%</div>
+        </div>
+      </div>
+      <div class="diag-rows">
+        <div class="diag-row"><div class="diag-row-label">Organic</div><div class="diag-row-val">${d.organic}</div></div>
+        <div class="diag-row"><div class="diag-row-label">Chemical</div><div class="diag-row-val">${d.chemical}</div></div>
+        <div class="diag-row"><div class="diag-row-label">Action</div><div class="diag-row-val">${d.action}</div></div>
+        <div class="diag-row"><div class="diag-row-label">Recovery</div><div class="diag-row-val">${d.recover}</div></div>
+      </div>
+      <div class="diag-actions">
+        <button class="diag-act-btn diag-act-outline" onclick="showPage('experts');setActiveNav(document.querySelectorAll('.nav-link')[4])">Book expert →</button>
+        <button class="diag-act-btn diag-act-solid" onclick="toast('Spray schedule saved to your calendar')">Save schedule</button>
+      </div>
+    </div>
+  </div>`;
+  setTimeout(() => {
+    const arc = document.getElementById('conf-arc');
+    const lbl = document.getElementById('conf-label');
+    if(arc) arc.style.strokeDashoffset = offset.toFixed(1);
+    let count = 0;
+    const counter = setInterval(() => {
+      count += 2;
+      if(count >= d.conf) { count = d.conf; clearInterval(counter); }
+      if(lbl) lbl.textContent = count + '%';
+    }, 20);
+  }, 100);
+  container.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function dashTab(btn, panel) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['crops','history','schedule'].forEach(p => {
+    const el = document.getElementById('dtab-' + p);
+    if(el) el.style.display = p === panel ? '' : 'none';
+  });
+}
+
+function filterMarket(btn, cat) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.market-card').forEach(card => {
+    card.style.display = cat === 'all' || card.dataset.cat === cat ? '' : 'none';
+  });
+}
+
+function toast(msg, type) {
+  type = type || 'ok';
+  const container = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  const iconPath = type === 'ok'
+    ? '<polyline points="20 6 9 17 4 12"/>'
+    : '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>';
+  t.innerHTML = `<div class="toast-icon"><svg viewBox="0 0 24 24">${iconPath}</svg></div><span style="flex:1;font-size:13px">${msg}</span><button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
+  container.appendChild(t);
+  setTimeout(() => { t.classList.add('hiding'); setTimeout(() => t.remove(), 300); }, 3500);
+}
+
+// Particles for hero
+(function(){
+  const c = document.getElementById('particles');
+  if(!c) return;
+  for(let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `left:${Math.random()*100}%;top:${40+Math.random()*60}%;animation-duration:${4+Math.random()*6}s;animation-delay:${Math.random()*5}s;opacity:${.2+Math.random()*.4};width:${2+Math.random()*3}px;height:${2+Math.random()*3}px`;
+    c.appendChild(p);
+  }
+})();
+
+// Stagger crop-tag animations
+document.querySelectorAll('.crop-tag').forEach((t,i) => t.style.animationDelay = (i*.03)+'s');
+document.querySelectorAll('.home-feat-card').forEach((c,i) => c.style.animationDelay = (i*.07)+'s');
+</script>
+</body>
+</html>
